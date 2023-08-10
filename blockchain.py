@@ -2,12 +2,13 @@ import hashlib
 import time
 import requests
 import json
+from datetime import datetime
 
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, hash, nonce):
         self.index = index
         self.previous_hash = previous_hash
-        self.timestamp = timestamp
+        self.timestamp = datetime.now()
         self.data = data
         self.hash = hash
         self.nonce = nonce
@@ -20,7 +21,7 @@ def proof_of_work(block, difficulty):
     while block.hash[:difficulty] != target:
         block.nonce += 1
         block.hash = calculate_hash(block.index, block.previous_hash, block.timestamp, block.data, block.nonce)
-    print("Khối đã được đào xong:", block.hash)
+    print("Khối:",block.index,"||", block.previous_hash,"||",  block.hash ,"||",  block.timestamp,"||",  block.data,"||")
 
 def create_genesis_block():
     return Block(0, "0", time.time(), "Genesis Block", "", 0)
@@ -56,36 +57,36 @@ def is_chain_valid(chain, difficulty):
     return True
 
 from flask import Flask, request, jsonify, render_template
-class Node:
-    def __init__(self):
-        self.chain = [create_genesis_block()]
-        self.pending_transactions = []
-        self.server_url = 'http://127.0.0.1:5000'
-
-    def mine_block(self,data):
-        data = f"{data}"
-        previous_block = self.chain[-1]
-        new_index = previous_block.index + 1
-        new_timestamp = time.time()
-        new_hash = calculate_hash(new_index, previous_block.hash, new_timestamp, data, 0)
-        new_block = Block(new_index, previous_block.hash, new_timestamp, data, new_hash, 0)
-        self.chain.append(new_block)
-        self.pending_transactions = []
-
-        # Gửi khối mới đến server để nạp vào blockchain chung
-        self.send_block_to_server(new_block.__dict__)
-
-    def add_transaction(self, transaction):
-        self.pending_transactions.append(transaction)
-
-    def send_block_to_server(self, block_data):
-        url = f'{self.server_url}/add_block'
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(url, json=block_data, headers=headers)
-        if response.status_code == 200:
-            print('Block added to server successfully')
-        else:
-            print('Error adding block to server')
+# class Node:
+#     def __init__(self):
+#         self.chain = [create_genesis_block()]
+#         self.pending_transactions = []
+#         self.server_url = 'http://127.0.0.1:5000'
+#
+#     def mine_block(self,data):
+#         data = f"{data}"
+#         previous_block = self.chain[-1]
+#         new_index = previous_block.index + 1
+#         new_timestamp = time.time()
+#         new_hash = calculate_hash(new_index, previous_block.hash, new_timestamp, data, 0)
+#         new_block = Block(new_index, previous_block.hash, new_timestamp, data, new_hash, 0)
+#         self.chain.append(new_block)
+#         self.pending_transactions = []
+#
+#         # Gửi khối mới đến server để nạp vào blockchain chung
+#         self.send_block_to_server(new_block.__dict__)
+#
+#     def add_transaction(self, transaction):
+#         self.pending_transactions.append(transaction)
+#
+#     def send_block_to_server(self, block_data):
+#         url = f'{self.server_url}/add_block'
+#         headers = {'Content-Type': 'application/json'}
+#         response = requests.post(url, json=block_data, headers=headers)
+#         if response.status_code == 200:
+#             print('Block added to server successfully')
+#         else:
+#             print('Error adding block to server')
 
 # import random
 # problem_data = {

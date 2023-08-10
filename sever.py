@@ -18,10 +18,12 @@ def index():
 @app.route("/get_problem", methods=["GET"])
 def get_problem():
     # Định nghĩa bài toán (ví dụ: giải phương trình bậc 2)
+    global reward
+    reward = random.randint(10, 100)
     problem_data = {
         "description": "Tính: ",
         "data": "1+1=",
-        "reward": random.randint(2, 100)
+        "reward": reward
     }
     return jsonify(problem_data)
 @app.route("/get_problem2", methods=["GET"])
@@ -54,12 +56,19 @@ blockchain = [blockchain.create_genesis_block()]
 @app.route('/mine', methods=['GET'])  # Định nghĩa route /mine
 def mine():
     # Tạo chuỗi blockchain và thêm một số khối vào đó (giống như trong ví dụ trước)
-    data = f"heloo"
+    print(reward)
+    data = f"{reward}"
     new_block = create_new_block(data, blockchain)
     blockchain.append(new_block)
     # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
-    return jsonify({"message": "ha ha"})
-@app.route("/display", methods = ["POST"])
+    hi = request.get_json()
+    # Forward the problem to the node through the "/new_problem" route
+    node_url = "http://localhost:5001/get_wallet"
+    headers = {"Content-Type": "application/json"}
+    wallet = 0
+    wallet = wallet + reward
+    return jsonify(wallet)
+@app.route("/display", methods = ["GET"])
 def display():
     # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
     blockchain_data = []
@@ -101,5 +110,4 @@ def new_problem2():
     else:
         return jsonify({"message": "Lỗi khi gửi bài toán cho node!"})
 if __name__ == "__main__":
-    print(submit_solution)
     app.run(debug=True)

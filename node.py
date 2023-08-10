@@ -35,7 +35,17 @@ def new_problem():
     data = request.get_json()
     problem_data = data
     return jsonify({"message": "Đã nhận bài toán mới từ server"})
-
+@app.route("/get_wallet", methods=["POST"])
+def get_wallet():
+    global get_wallet
+    wallet = request.get_json()
+    get_wallet = wallet
+    return jsonify({"message": "Tiền đã vào ví"})
+def new_problem():
+    global problem_data
+    data = request.get_json()
+    problem_data = data
+    return jsonify({"message": "Đã nhận bài toán mới từ server"})
 blockchain = [create_genesis_block()]
 @app.route('/mine', methods=['GET'])  # Định nghĩa route /mine
 def mine():

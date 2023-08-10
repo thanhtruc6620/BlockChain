@@ -97,15 +97,21 @@
     </script>
     <button onclick="displayBlockchain()">Hiển thị Blockchain</button>
     <div id="display-container"></div>
-<script>
+    <div id="wallet">tiền nek</div>
+    <script>
         // Đoạn mã JavaScript
-function displayBlockchain() {
-    fetch('/display', {
-        method: 'POST'
+    temp = 0
+    function displayBlockchain() {
+    fetch('http://localhost:5000/display', {
+        method: 'GET'
     })
     .then(response => response.json())
     .then(data => {
         // Xử lý và hiển thị dữ liệu lên trang
+
+        const temp = temp + ${block.data}
+        const wallet = document.getElementById('wallet')
+
         const displayContainer = document.getElementById('display-container');
         displayContainer.innerHTML = ''; // Xóa dữ liệu cũ trước khi hiển thị mới
         data.forEach(block => {
@@ -115,7 +121,7 @@ function displayBlockchain() {
                 <p>Index: ${block.index}</p>
                 <p>Previous Hash: ${block.previous_hash}</p>
                 <p>Timestamp: ${block.timestamp}</p>
-                <p>Data: ${block.data}</p>
+                <p>Data: sever --> node1: ${block.data}</p>
                 <p>Hash: ${block.hash}</p>
             `;
             displayContainer.appendChild(blockElement);
