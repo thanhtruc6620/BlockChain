@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Node 2</title>
+</head>
+<body>
+    <h1>Node 2</h1>
+    <h2>Thông tin Bài toán từ Server</h2>
+    <p id="problem_data"></p>
+    <form method="get" action="new_problem" >
+
+    </form>
+
+    <h2>Gửi Giải Pháp</h2>
+    <form id="solution_form">
+        <label for="solution">Giải pháp:</label>
+        <input type="text" name="solution" id="solution">
+        <input type="submit" value="Gửi">
+    </form>
+
+    <h2>Trạng Thái Giải Pháp</h2>
+    <p id="solution_status"></p>
+    <script>
+        // Hàm xử lý gửi giải pháp
+        function submitSolution(event) {
+            event.preventDefault();
+
+            // Lấy giá trị giải pháp từ ô nhập liệu
+            const solution = document.getElementById("solution").value;
+
+            // Gửi giải pháp lên Server qua yêu cầu POST
+            fetch("/submit_solution", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ solution: solution })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Hiển thị trạng thái giải pháp
+                document.getElementById("solution_status").textContent = data.message;
+
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                // Xử lý lỗi nếu cần thiết
+            });
+        }
+
+        // Gán hàm submitSolution vào sự kiện gửi form
+        const solutionForm = document.getElementById("solution_form");
+        solutionForm.addEventListener("submit", submitSolution);
+
+        // Hàm yêu cầu bài toán từ Server
+        function fetchProblemFromServer() {
+            fetch("/get_problem")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Hiển thị thông tin bài toán
+                if ("message" in data) {
+                    document.getElementById("problem_data").textContent = data.message;
+                } else {
+                    const problemData = data;
+                    const problemDataStr = `Bài toán: ${problemData.description}, Dữ liệu: ${JSON.stringify(problemData.data)}, Reward: ${problemData.reward}`;
+                    document.getElementById("problem_data").textContent = problemDataStr;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                // Xử lý lỗi nếu cần thiết
+            });
+        }
+
+        // Yêu cầu bài toán từ Server khi trang được tải lên
+        fetchProblemFromServer();
+        mineAndDisplay()
+    </script>
+    <button id="mineButton">Mine Block</button>
+    <div id="blockchainDisplay"></div>
+    <script>
+        const mineButton = document.getElementById("mineButton");
+        const blockchainDisplay = document.getElementById("blockchainDisplay");
+
+        mineButton.addEventListener("click", function() {
+            fetch("/mine")
+                .then(response => response.json())
+                .then(blockchainData => {
+                    // Hiển thị dữ liệu blockchain lên trang
+                    const blockList = document.createElement("ul");
+
+                    blockchainData.forEach(block => {
+                        const blockItem = document.createElement("li");
+                        blockItem.textContent = `Index: ${block.index}, Previous Hash: ${block.previous_hash}, Timestamp: ${block.timestamp}, Data: ${block.data}, Hash: ${block.hash}`;
+                        blockList.appendChild(blockItem);
+                    });
+
+                    blockchainDisplay.innerHTML = "";
+                    blockchainDisplay.appendChild(blockList);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+    <script>
+        // Đoạn mã JavaScript
+function mineAndDisplay() {
+    fetch('/mine', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Xử lý và cập nhật dữ liệu lên trang sau khi mine
+        const displayContainer = document.getElementById('blockchainDisplay');
+        displayContainer.innerHTML = ''; // Xóa dữ liệu cũ trước khi cập nhật mới
+        data.forEach(block => {
+            const blockElement = document.createElement('div');
+            blockElement.className = 'block';
+            blockElement.innerHTML = `
+                <p>Index: ${block.index}</p>
+                <p>Previous Hash: ${block.previous_hash}</p>
+                <p>Timestamp: ${block.timestamp}</p>
+                <p>Data: ${block.data}</p>
+                <p>Hash: ${block.hash}</p>
+            `;
+            displayContainer.appendChild(blockElement);
+        });
+    })
+    .catch(error => {
+        console.error('Lỗi khi gọi hàm mine và cập nhật dữ liệu:', error);
+    });
+}
+    </script>
+</body>
+</html>

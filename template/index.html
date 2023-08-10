@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sever</title>
+</head>
+<body>
+    <button id="sendProblemButton">Send Problem Node 1</button>
+    <button id="sendProblemButton2">Send Problem Node 2</button>
+
+    <h1>Thông tin giao dịch</h1>
+
+    <script>
+        const sendProblemButton = document.getElementById("sendProblemButton");
+
+        sendProblemButton.addEventListener("click", function() {
+            fetch("/get_problem")
+                .then(response => response.json())
+                .then(problemData => {
+                    // Gửi dữ liệu bài toán tới "/new_problem"
+                    fetch("/new_problem", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(problemData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Response:", data);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+
+
+    <script>
+        const sendProblemButton2 = document.getElementById("sendProblemButton2");
+
+        sendProblemButton2.addEventListener("click", function() {
+            fetch("/get_problem2")
+                .then(response => response.json())
+                .then(problemData => {
+                    // Gửi dữ liệu bài toán tới "/new_problem2"
+                    fetch("/new_problem2", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(problemData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Response:", data);
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+
+    <button id="mineButton">Mine Block</button>
+    <div id="blockchainDisplay"></div>
+
+    <script>
+        const mineButton = document.getElementById("mineButton");
+        const blockchainDisplay = document.getElementById("blockchainDisplay");
+
+        mineButton.addEventListener("click", function() {
+            fetch("/display")
+                .then(response => response.json())
+                .then(blockchainData => {
+                    // Hiển thị dữ liệu blockchain lên trang
+                    const blockList = document.createElement("ul");
+
+                    blockchainData.forEach(block => {
+                        const blockItem = document.createElement("li");
+                        blockItem.textContent = `Index: ${block.index}, Previous Hash: ${block.previous_hash}, Timestamp: ${block.timestamp}, Data: ${block.data}, Hash: ${block.hash}`;
+                        blockList.appendChild(blockItem);
+                    });
+
+                    blockchainDisplay.innerHTML = "";
+                    blockchainDisplay.appendChild(blockList);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+        });
+    </script>
+</body>
+</html>
