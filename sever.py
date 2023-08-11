@@ -61,13 +61,12 @@ def mine():
     new_block = create_new_block(data, blockchain)
     blockchain.append(new_block)
     # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
-    hi = request.get_json()
-    # Forward the problem to the node through the "/new_problem" route
-    node_url = "http://localhost:5001/get_wallet"
-    headers = {"Content-Type": "application/json"}
-    wallet = 0
-    wallet = wallet + reward
-    return jsonify(wallet)
+
+    return jsonify({"message": "hihi"})
+
+@app.route("/get_reward", methods = ['GET'])
+def get_reward():
+    return jsonify(reward)
 @app.route("/display", methods = ["GET"])
 def display():
     # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
@@ -92,7 +91,7 @@ def new_problem():
     response = requests.post(node_url, headers=headers, json=data)
 
     if response.status_code == 200:
-        return jsonify({"message": "Đã gửi bài toán thành công cho node!"})
+        return jsonify(reward)
     else:
         return jsonify({"message": "Lỗi khi gửi bài toán cho node!"})
 
@@ -106,7 +105,7 @@ def new_problem2():
     response = requests.post(node_url, headers=headers, json=data)
 
     if response.status_code == 200:
-        return jsonify({"message": "Đã gửi bài toán thành công cho node!"})
+        return jsonify(reward)
     else:
         return jsonify({"message": "Lỗi khi gửi bài toán cho node!"})
 if __name__ == "__main__":

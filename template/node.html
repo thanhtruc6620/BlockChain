@@ -25,10 +25,8 @@
         // Hàm xử lý gửi giải pháp
         function submitSolution(event) {
             event.preventDefault();
-
             // Lấy giá trị giải pháp từ ô nhập liệu
             const solution = document.getElementById("solution").value;
-
             // Gửi giải pháp lên Server qua yêu cầu POST
             fetch("/submit_solution", {
                 method: "POST",
@@ -44,6 +42,7 @@
                 document.getElementById("solution_status").textContent = data.message;
                 if (data.message == "Đáp án chính xác!"){
                  document.getElementById("test").textContent = "ha ha"
+                 wallet()
                  add_block()
                 }
                 else{document.getElementById("test").textContent = "sai"}
@@ -97,7 +96,7 @@
     </script>
     <button onclick="displayBlockchain()">Hiển thị Blockchain</button>
     <div id="display-container"></div>
-    <div id="wallet">tiền nek</div>
+
     <script>
         // Đoạn mã JavaScript
     temp = 0
@@ -108,10 +107,6 @@
     .then(response => response.json())
     .then(data => {
         // Xử lý và hiển thị dữ liệu lên trang
-
-        const temp = temp + ${block.data}
-        const wallet = document.getElementById('wallet')
-
         const displayContainer = document.getElementById('display-container');
         displayContainer.innerHTML = ''; // Xóa dữ liệu cũ trước khi hiển thị mới
         data.forEach(block => {
@@ -121,7 +116,7 @@
                 <p>Index: ${block.index}</p>
                 <p>Previous Hash: ${block.previous_hash}</p>
                 <p>Timestamp: ${block.timestamp}</p>
-                <p>Data: sever --> node1: ${block.data}</p>
+                <p>Data: sever --> node1 +${block.data}</p>
                 <p>Hash: ${block.hash}</p>
             `;
             displayContainer.appendChild(blockElement);
@@ -132,5 +127,39 @@
     });
 }
     </script>
+    <div id="wallet">0</div>
+    <div id="wallet1">0</div>
+<script>
+     function wallet() {
+            fetch("/get_problem")
+            .then(response => response.json())
+            .then(data => {
+                const problemDataElement = document.getElementById("problem_data");
+                const problemDataContent = problemDataElement.textContent;
+                const walletElement = document.getElementById("wallet");
+                 walletValue = parseFloat(walletElement.textContent) || 0;
+            // Tìm chỉ số của chuỗi "Reward: "
+                const rewardIndex = problemDataContent.indexOf("Reward: ");
+                if (rewardIndex !== -1) {
+            // Trích xuất chuỗi reward từ vị trí sau "Reward: " đến hết chuỗi
+                    const rewardString = problemDataContent.substring(rewardIndex + 8);
+            // Chuyển đổi chuỗi reward thành số (loại bỏ phần dư thừa nhưng giữ lại dấu số)
+                    const rewardValue = parseFloat(rewardString) || 0;
+            // In kết quả ra console (tùy chọn)
+                    document.getElementById("wallet").textContent = rewardValue;
+            // TODO: Thực hiện tính tổng reward hoặc sử dụng rewardValue theo nhu cầu của bạn
+                    walletValue = walletValue + rewardValue;
+                    document.getElementById("wallet1").textContent = walletValue;
+            } else {
+                    document.getElementById("wallet").textContent = "Chưa có tiền";
+            }
+
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                // Xử lý lỗi nếu cần thiết
+            });
+        }
+</script>
 </body>
 </html>
