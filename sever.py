@@ -2,6 +2,7 @@ import json
 import random
 import blockchain
 from blockchain import create_new_block
+from blockchain import Block
 import requests
 from flask import Flask, request, jsonify
 import hashlib
@@ -29,10 +30,17 @@ def get_problem():
 @app.route("/get_problem2", methods=["GET"])
 def get_problem2():
     # Định nghĩa bài toán (ví dụ: giải phương trình bậc 2)
+    global s
+    global t
+    global reward2
+    s = random.randint(1,100)
+    t = random.randint(1,24)
+    reward2 = random.randint(30,100)
     problem_data = {
-        "description": "problem 2 ",
-        "data": "1+1=",
-        "reward": random.randint(2, 100)
+        "description": "Tính Vận tốc",
+        "S": s,
+        "T": t,
+        "reward": reward2
     }
     return jsonify(problem_data)
 @app.route("/submit_solution", methods=["POST"])
@@ -41,29 +49,42 @@ def submit_solution():
         return jsonify({"message": "Đáp án chính xác!"})
     else:
         return jsonify({"message": "Đáp án không chính xác!"})
-from blockchain import Block
 @app.route("/check", methods=["POST"])
 def check():
     data = request.get_json()
     solution = data.get("solution")
     if int(solution) == 2:
         return 1
-        #return jsonify({"message": "Đáp án chính xác!"})
     else:
         return 2
-        #return jsonify({"message": "Đáp án không chính xác!"})
+@app.route("/check2", methods=["POST"])
+def check2():
+    data = request.get_json()
+    solution = data.get("solution")
+    v= int(s/t)
+    if int(solution) == v:
+        return jsonify({"message": "Đáp án chính xác!"})
+    else:
+        return jsonify({"message": "Đáp án không chính xác!"})
 blockchain = [blockchain.create_genesis_block()]
 @app.route('/mine', methods=['GET'])  # Định nghĩa route /mine
 def mine():
     # Tạo chuỗi blockchain và thêm một số khối vào đó (giống như trong ví dụ trước)
-    print(reward)
-    data = f"{reward}"
+    data = f"sever --> node1 : {reward}"
     new_block = create_new_block(data, blockchain)
     blockchain.append(new_block)
     # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
 
     return jsonify({"message": "hihi"})
+@app.route('/mine2', methods=['GET'])  # Định nghĩa route /mine
+def mine2():
+    # Tạo chuỗi blockchain và thêm một số khối vào đó (giống như trong ví dụ trước)
+    data = f"sever --> node2 : {reward2}"
+    new_block2 = create_new_block(data, blockchain)
+    blockchain.append(new_block2)
+    # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
 
+    return jsonify({"message": "hihi"})
 @app.route("/get_reward", methods = ['GET'])
 def get_reward():
     return jsonify(reward)
@@ -105,7 +126,7 @@ def new_problem2():
     response = requests.post(node_url, headers=headers, json=data)
 
     if response.status_code == 200:
-        return jsonify(reward)
+        return jsonify(reward2)
     else:
         return jsonify({"message": "Lỗi khi gửi bài toán cho node!"})
 if __name__ == "__main__":

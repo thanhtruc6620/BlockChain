@@ -25,7 +25,7 @@ def submit_solution():
     data = request.get_json()
     solution = data.get("solution")
     # Gửi giải pháp lên Server qua yêu cầu POST
-    server_url = "http://localhost:5000/submit_solution"
+    server_url = "http://localhost:5000/check2"
     headers = {"Content-Type": "application/json"}
     response = requests.post(server_url, headers=headers, json=data)
     solution_status = response.json()
@@ -37,26 +37,6 @@ def new_problem():
     problem_data = data
     return jsonify({"message": "Đã nhận bài toán mới từ server"})
 
-blockchain = [create_genesis_block()]
-@app.route('/mine', methods=['GET'])  # Định nghĩa route /mine
-def mine():
-    # Tạo chuỗi blockchain và thêm một số khối vào đó (giống như trong ví dụ trước)
-    data = f"heloo"
-    new_block = create_new_block(data, blockchain)
-    blockchain.append(new_block)
-    # Chuyển đổi dữ liệu từ Python thành một danh sách JSON để gửi cho trình duyệt
-    blockchain_data = []
-    for block in blockchain:
-        blockchain_data.append({
-            'index': block.index,
-            'previous_hash': block.previous_hash,
-            'timestamp': block.timestamp,
-            'data': block.data,
-            'hash': block.hash
-        })
-
-    # Trả về dữ liệu dạng JSON
-    return jsonify(blockchain_data)
 def receive_problem_from_server(problem):
     global problem_data
     problem_data = problem

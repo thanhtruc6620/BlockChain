@@ -2,10 +2,44 @@
 <html>
 <head>
     <title>Sever</title>
+    <link rel="stylesheet" type="text/css" href="css.css">
 </head>
 <body>
     <button id="sendProblemButton">Send Problem Node 1</button>
     <button id="sendProblemButton2">Send Problem Node 2</button>
+    <style>
+        #sendProblemButton{
+        background-color: #FFF0F5;
+        color: black;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 281px;
+        height: 118px;
+       }
+
+        #sendProblemButton:hover{
+        background-color: #CDC1C5;
+        }
+
+        #sendProblemButton2{
+        background-color: #FFF0F5;
+        color: black;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 281px;
+        height: 118px;
+       }
+
+        #sendProblemButton2:hover{
+        background-color: #CDC1C5;
+        }
+    </style>
 
     <h1>Thông tin giao dịch</h1>
 
@@ -70,31 +104,83 @@
 
 <!--    <button id="mineButton">Mine Block</button>-->
 <!--    <div id="blockchainDisplay"></div>-->
+    <table>
+    <thead>
+        <tr>
+            <th>Index</th>
+            <th>Previous Hash</th>
+            <th>Timestamp</th>
+            <th>Data</th>
+            <th>Hash</th>
+        </tr>
+    </thead>
+    <tbody id="blockTable">
+        <!-- Dữ liệu từ JavaScript sẽ được thêm vào đây -->
+    </tbody>
+    </table>
+    <style>
+    /* Kiểu cho dòng chẵn  */
+    tbody tr:nth-child(even) {
+        background-color: #63B8FF;
+       }
+
+    /* Kiểu cho dòng lẻ  */
+    tbody tr:nth-child(odd) {
+        background-color: # CAE1FF;
+    }
+
+    /* Kiểu cho phần đầu bảng */
+    thead {
+        background-color: #0000EE;
+        color: white;
+    }
+
+    /* Kiểu cho các ô trong bảng */
+    td, th {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    </style>
 
     <script>
-        const mineButton = document.getElementById("mineButton");
-        const blockchainDisplay = document.getElementById("blockchainDisplay");
+<!--        const mineButton = document.getElementById("mineButton");-->
+<!--        const blockchainDisplay = document.getElementById("blockchainDisplay");-->
+        function display() {
+           fetch("/display")
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(block => {
+            const row = document.createElement("tr");
 
-        mineButton.addEventListener("click", function() {
-            fetch("/display")
-                .then(response => response.json())
-                .then(blockchainData => {
-                    // Hiển thị dữ liệu blockchain lên trang
-                    const blockList = document.createElement("ul");
+            const indexCell = document.createElement("td");
+            indexCell.textContent = block.index;
+            row.appendChild(indexCell);
 
-                    blockchainData.forEach(block => {
-                        const blockItem = document.createElement("li");
-                        blockItem.textContent = `Index: ${block.index}, Previous Hash: ${block.previous_hash}, Timestamp: ${block.timestamp}, Data: ${block.data}, Hash: ${block.hash}`;
-                        blockList.appendChild(blockItem);
-                    });
+            const prevHashCell = document.createElement("td");
+            prevHashCell.textContent = block.previous_hash;
+            row.appendChild(prevHashCell);
 
-                    blockchainDisplay.innerHTML = "";
-                    blockchainDisplay.appendChild(blockList);
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                });
+            const timestampCell = document.createElement("td");
+            timestampCell.textContent = block.timestamp;
+            row.appendChild(timestampCell);
+
+            const dataCell = document.createElement("td");
+            dataCell.textContent = block.data;
+            row.appendChild(dataCell);
+
+            const hashCell = document.createElement("td");
+            hashCell.textContent = block.hash;
+            row.appendChild(hashCell);
+
+            blockTable.appendChild(row);
         });
+    })
+    .catch(error => {
+        console.error("Lỗi khi gọi API:", error);
+    });
+        };
+        display()
     </script>
 </body>
 </html>

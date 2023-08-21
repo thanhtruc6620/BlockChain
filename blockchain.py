@@ -21,7 +21,7 @@ def proof_of_work(block, difficulty):
     while block.hash[:difficulty] != target:
         block.nonce += 1
         block.hash = calculate_hash(block.index, block.previous_hash, block.timestamp, block.data, block.nonce)
-    print("Khối:",block.index,"||", block.previous_hash,"||",  block.hash ,"||",  block.timestamp,"||",  block.data,"||")
+
 
 def create_genesis_block():
     return Block(0, "0", time.time(), "Genesis Block", "", 0)
@@ -33,7 +33,7 @@ def create_new_block(data, blockchain):
     new_timestamp = time.time()
     new_hash = calculate_hash(new_index, previous_block.hash, new_timestamp, data, 0)
     new_block = Block(new_index, previous_block.hash, new_timestamp, data, new_hash, 0)
-    proof_of_work(new_block, 4)  # 4 là một số khó (difficulty) tùy chọn
+    proof_of_work(new_block, 4)
     return new_block
 
 def is_chain_valid(chain, difficulty):

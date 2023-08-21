@@ -1,33 +1,89 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Node 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F1F0E8;
+            margin: 100;
+            padding: 100;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #252B48;
+        }
+        h2 {
+            color: #666;
+        }
+        p {
+            color: #444;
+            line-height: 1.6;
+        }
+        form {
+            margin-top: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+        }
+        input[type="text"] {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #wallet {
+            font-size: 24px;
+            color: #00cc00;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>Node 2</h1>
     <h2>Thông tin Bài toán từ Server</h2>
     <p id="problem_data"></p>
     <form method="get" action="new_problem" >
-
     </form>
-
-    <h2>Gửi Giải Pháp</h2>
     <form id="solution_form">
-        <label for="solution">Giải pháp:</label>
+        <label for="solution">Đáp án:</label>
         <input type="text" name="solution" id="solution">
         <input type="submit" value="Gửi">
     </form>
 
-    <h2>Trạng Thái Giải Pháp</h2>
+    <h2>Kết quả</h2>
     <p id="solution_status"></p>
+
+    <p>Total: </p>
+    <div id="wallet">{{walletValue}}</div>
     <script>
         // Hàm xử lý gửi giải pháp
         function submitSolution(event) {
             event.preventDefault();
-
             // Lấy giá trị giải pháp từ ô nhập liệu
             const solution = document.getElementById("solution").value;
-
             // Gửi giải pháp lên Server qua yêu cầu POST
             fetch("/submit_solution", {
                 method: "POST",
@@ -41,7 +97,11 @@
                 console.log(data);
                 // Hiển thị trạng thái giải pháp
                 document.getElementById("solution_status").textContent = data.message;
-
+                if (data.message == "Đáp án chính xác!"){
+                 wallet()
+                 add_block()
+                }
+                else{document.getElementById("test").textContent = "sai"}
             })
             .catch(error => {
                 console.error("Lỗi:", error);
@@ -64,7 +124,7 @@
                     document.getElementById("problem_data").textContent = data.message;
                 } else {
                     const problemData = data;
-                    const problemDataStr = `Bài toán: ${problemData.description}, Dữ liệu: ${JSON.stringify(problemData.data)}, Reward: ${problemData.reward}`;
+                    const problemDataStr = `Bài toán: ${problemData.description}, Quảng Đường:  ${JSON.stringify(problemData.S)}, Thời gian: ${JSON.stringify(problemData.T)}, Reward: ${problemData.reward}`;
                     document.getElementById("problem_data").textContent = problemDataStr;
                 }
             })
@@ -73,66 +133,63 @@
                 // Xử lý lỗi nếu cần thiết
             });
         }
-
         // Yêu cầu bài toán từ Server khi trang được tải lên
         fetchProblemFromServer();
-        mineAndDisplay()
     </script>
-    <button id="mineButton">Mine Block</button>
-    <div id="blockchainDisplay"></div>
     <script>
         const mineButton = document.getElementById("mineButton");
         const blockchainDisplay = document.getElementById("blockchainDisplay");
+        function add_block() {
+            fetch("http://localhost:5000/mine2")
+            .then(response => response.json())
 
-        mineButton.addEventListener("click", function() {
-            fetch("/mine")
-                .then(response => response.json())
-                .then(blockchainData => {
-                    // Hiển thị dữ liệu blockchain lên trang
-                    const blockList = document.createElement("ul");
-
-                    blockchainData.forEach(block => {
-                        const blockItem = document.createElement("li");
-                        blockItem.textContent = `Index: ${block.index}, Previous Hash: ${block.previous_hash}, Timestamp: ${block.timestamp}, Data: ${block.data}, Hash: ${block.hash}`;
-                        blockList.appendChild(blockItem);
-                    });
-
-                    blockchainDisplay.innerHTML = "";
-                    blockchainDisplay.appendChild(blockList);
-                })
                 .catch(error => {
                     console.error("Error:", error);
                 });
-        });
+        }
     </script>
     <script>
-        // Đoạn mã JavaScript
-function mineAndDisplay() {
-    fetch('/mine', {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Xử lý và cập nhật dữ liệu lên trang sau khi mine
-        const displayContainer = document.getElementById('blockchainDisplay');
-        displayContainer.innerHTML = ''; // Xóa dữ liệu cũ trước khi cập nhật mới
-        data.forEach(block => {
-            const blockElement = document.createElement('div');
-            blockElement.className = 'block';
-            blockElement.innerHTML = `
-                <p>Index: ${block.index}</p>
-                <p>Previous Hash: ${block.previous_hash}</p>
-                <p>Timestamp: ${block.timestamp}</p>
-                <p>Data: ${block.data}</p>
-                <p>Hash: ${block.hash}</p>
-            `;
-            displayContainer.appendChild(blockElement);
-        });
-    })
-    .catch(error => {
-        console.error('Lỗi khi gọi hàm mine và cập nhật dữ liệu:', error);
-    });
-}
-    </script>
+     function wallet() {
+            fetch("/get_problem")
+            .then(response => response.json())
+            .then(data => {
+                const problemDataElement = document.getElementById("problem_data");
+                const problemDataContent = problemDataElement.textContent;
+                const walletElement = document.getElementById("wallet");
+                 walletValue = parseFloat(walletElement.textContent) || 0;
+            // Tìm chỉ số của chuỗi "Reward: "
+                const rewardIndex = problemDataContent.indexOf("Reward: ");
+                if (rewardIndex !== -1) {
+            // Trích xuất chuỗi reward từ vị trí sau "Reward: " đến hết chuỗi
+                    const rewardString = problemDataContent.substring(rewardIndex + 8);
+            // Chuyển đổi chuỗi reward thành số (loại bỏ phần dư thừa nhưng giữ lại dấu số)
+                    const rewardValue = parseFloat(rewardString) || 0;
+            // In kết quả ra console (tùy chọn)
+                    document.getElementById("wallet").textContent = rewardValue;
+            // TODO: Thực hiện tính tổng reward hoặc sử dụng rewardValue theo nhu cầu của bạn
+                    walletValue = walletValue + rewardValue;
+                    document.getElementById("wallet").textContent = walletValue;
+                    localStorage.setItem("wallet1Content", walletValue);
+            } else {
+                    document.getElementById("wallet").textContent = "Chưa có tiền";
+            }
+
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                // Xử lý lỗi nếu cần thiết
+            });
+        }
+        // Lưu nội dung của thẻ vào Local Storage
+
+        // Gọi lại giá trị của thẻ từ Local Storage khi trang được tải lại
+        window.onload = function () {
+           storedWallet1Content = localStorage.getItem("wallet1Content");
+            if (storedWallet1Content !== null) {
+            // Gán nội dung từ Local Storage vào thẻ <div>
+            document.getElementById("wallet").textContent = storedWallet1Content;
+    }
+};
+</script>
 </body>
 </html>

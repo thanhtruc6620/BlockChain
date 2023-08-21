@@ -2,25 +2,82 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <title>Node 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFDDCC;
+            margin: 100;
+            padding: 100;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #252B48;
+        }
+        h2 {
+            color: #666;
+        }
+        p {
+            color: #444;
+            line-height: 1.6;
+        }
+        form {
+            margin-top: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+        }
+        input[type="text"] {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #wallet {
+            font-size: 24px;
+            color: #00cc00;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <h1>Node 1</h1>
     <h2>Thông tin Bài toán từ Server</h2>
     <p id="problem_data"></p>
     <form method="get" action="new_problem" >
-
     </form>
-
-    <h2>Gửi Giải Pháp</h2>
     <form id="solution_form">
-        <label for="solution">Giải pháp:</label>
+        <label for="solution">Đáp án:</label>
         <input type="text" name="solution" id="solution">
         <input type="submit" value="Gửi">
     </form>
 
-    <h2>Trạng Thái Giải Pháp</h2>
+    <h2>Kết quả</h2>
     <p id="solution_status"></p>
-    <p id ="test"></p>
+
+    <p>Total: </p>
+    <div id="wallet">{{walletValue}}</div>
     <script>
         // Hàm xử lý gửi giải pháp
         function submitSolution(event) {
@@ -41,7 +98,6 @@
                 // Hiển thị trạng thái giải pháp
                 document.getElementById("solution_status").textContent = data.message;
                 if (data.message == "Đáp án chính xác!"){
-                 document.getElementById("test").textContent = "ha ha"
                  wallet()
                  add_block()
                 }
@@ -68,7 +124,7 @@
                     document.getElementById("problem_data").textContent = data.message;
                 } else {
                     const problemData = data;
-                    const problemDataStr = `Bài toán: ${problemData.description}, Dữ liệu: ${JSON.stringify(problemData.data)}, Reward: ${problemData.reward}`;
+                    const problemDataStr = `Bài toán: ${problemData.description}, ${JSON.stringify(problemData.data)}, Reward: ${problemData.reward}`;
                     document.getElementById("problem_data").textContent = problemDataStr;
                 }
             })
@@ -79,9 +135,7 @@
         }
         // Yêu cầu bài toán từ Server khi trang được tải lên
         fetchProblemFromServer();
-
     </script>
-    <div id="blockchainDisplay">Đây nè</div>
     <script>
         const mineButton = document.getElementById("mineButton");
         const blockchainDisplay = document.getElementById("blockchainDisplay");
@@ -94,42 +148,7 @@
                 });
         }
     </script>
-    <button onclick="displayBlockchain()">Hiển thị Blockchain</button>
-    <div id="display-container"></div>
-
     <script>
-        // Đoạn mã JavaScript
-    temp = 0
-    function displayBlockchain() {
-    fetch('http://localhost:5000/display', {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Xử lý và hiển thị dữ liệu lên trang
-        const displayContainer = document.getElementById('display-container');
-        displayContainer.innerHTML = ''; // Xóa dữ liệu cũ trước khi hiển thị mới
-        data.forEach(block => {
-            const blockElement = document.createElement('div');
-            blockElement.className = 'block';
-            blockElement.innerHTML = `
-                <p>Index: ${block.index}</p>
-                <p>Previous Hash: ${block.previous_hash}</p>
-                <p>Timestamp: ${block.timestamp}</p>
-                <p>Data: sever --> node1 +${block.data}</p>
-                <p>Hash: ${block.hash}</p>
-            `;
-            displayContainer.appendChild(blockElement);
-        });
-    })
-    .catch(error => {
-        console.error('Lỗi khi gửi yêu cầu và hiển thị dữ liệu:', error);
-    });
-}
-    </script>
-    <div id="wallet">0</div>
-    <div id="wallet1">0</div>
-<script>
      function wallet() {
             fetch("/get_problem")
             .then(response => response.json())
@@ -149,7 +168,8 @@
                     document.getElementById("wallet").textContent = rewardValue;
             // TODO: Thực hiện tính tổng reward hoặc sử dụng rewardValue theo nhu cầu của bạn
                     walletValue = walletValue + rewardValue;
-                    document.getElementById("wallet1").textContent = walletValue;
+                    document.getElementById("wallet").textContent = walletValue;
+                    localStorage.setItem("wallet1Content", walletValue);
             } else {
                     document.getElementById("wallet").textContent = "Chưa có tiền";
             }
@@ -160,6 +180,16 @@
                 // Xử lý lỗi nếu cần thiết
             });
         }
+        // Lưu nội dung của thẻ vào Local Storage
+
+        // Gọi lại giá trị của thẻ từ Local Storage khi trang được tải lại
+        window.onload = function () {
+           storedWallet1Content = localStorage.getItem("wallet1Content");
+            if (storedWallet1Content !== null) {
+            // Gán nội dung từ Local Storage vào thẻ <div>
+            document.getElementById("wallet").textContent = storedWallet1Content;
+    }
+};
 </script>
 </body>
 </html>
